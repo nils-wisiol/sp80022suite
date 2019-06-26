@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "../include/externs.h"
+#include "../include/defs.h"
 #include "../include/utilities.h"
 #include "../include/cephes.h"  
 
@@ -11,8 +11,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 double	Pr(int u, double eta);
 
-void
-OverlappingTemplateMatchings(int m, int n)
+double
+OverlappingTemplateMatchings(int m, int n, const BitSequence *epsilon)
 {
 	int				i, k, match;
 	double			W_obs, eta, sum, chi2, p_value, lambda;
@@ -26,9 +26,7 @@ OverlappingTemplateMatchings(int m, int n)
 	N = n/M;
 	
 	if ( (sequence = (BitSequence *) calloc(m, sizeof(BitSequence))) == NULL ) {
-		fprintf(stats[TEST_OVERLAPPING], "\t\t    OVERLAPPING TEMPLATE OF ALL ONES TEST\n");
-		fprintf(stats[TEST_OVERLAPPING], "\t\t---------------------------------------------\n");
-		fprintf(stats[TEST_OVERLAPPING], "\t\tTEMPLATE DEFINITION:  Insufficient memory, Overlapping Template Matchings test aborted!\n");
+	    return -1;
 	}
 	else
 		for ( i=0; i<m; i++ )
@@ -67,29 +65,9 @@ OverlappingTemplateMatchings(int m, int n)
 	}
 	p_value = cephes_igamc(K/2.0, chi2/2.0);
 
-	fprintf(stats[TEST_OVERLAPPING], "\t\t    OVERLAPPING TEMPLATE OF ALL ONES TEST\n");
-	fprintf(stats[TEST_OVERLAPPING], "\t\t-----------------------------------------------\n");
-	fprintf(stats[TEST_OVERLAPPING], "\t\tCOMPUTATIONAL INFORMATION:\n");
-	fprintf(stats[TEST_OVERLAPPING], "\t\t-----------------------------------------------\n");
-	fprintf(stats[TEST_OVERLAPPING], "\t\t(a) n (sequence_length)      = %d\n", n);
-	fprintf(stats[TEST_OVERLAPPING], "\t\t(b) m (block length of 1s)   = %d\n", m);
-	fprintf(stats[TEST_OVERLAPPING], "\t\t(c) M (length of substring)  = %d\n", M);
-	fprintf(stats[TEST_OVERLAPPING], "\t\t(d) N (number of substrings) = %d\n", N);
-	fprintf(stats[TEST_OVERLAPPING], "\t\t(e) lambda [(M-m+1)/2^m]     = %f\n", lambda);
-	fprintf(stats[TEST_OVERLAPPING], "\t\t(f) eta                      = %f\n", eta);
-	fprintf(stats[TEST_OVERLAPPING], "\t\t-----------------------------------------------\n");
-	fprintf(stats[TEST_OVERLAPPING], "\t\t   F R E Q U E N C Y\n");
-	fprintf(stats[TEST_OVERLAPPING], "\t\t  0   1   2   3   4 >=5   Chi^2   P-value  Assignment\n");
-	fprintf(stats[TEST_OVERLAPPING], "\t\t-----------------------------------------------\n");
-	fprintf(stats[TEST_OVERLAPPING], "\t\t%3d %3d %3d %3d %3d %3d  %f ",
-		nu[0], nu[1], nu[2], nu[3], nu[4], nu[5], chi2);
-
-	if ( isNegative(p_value) || isGreaterThanOne(p_value) )
-		fprintf(stats[TEST_OVERLAPPING], "WARNING:  P_VALUE IS OUT OF RANGE.\n");
-
 	free(sequence);
-	fprintf(stats[TEST_OVERLAPPING], "%f %s\n\n", p_value, p_value < ALPHA ? "FAILURE" : "SUCCESS"); fflush(stats[TEST_OVERLAPPING]);
-	fprintf(results[TEST_OVERLAPPING], "%f\n", p_value); fflush(results[TEST_OVERLAPPING]);
+
+	return p_value;
 }
 
 double

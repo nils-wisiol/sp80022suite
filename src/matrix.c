@@ -127,15 +127,11 @@ create_matrix(int M, int Q)
 	BitSequence	**matrix;
 	
 	if ( (matrix = (BitSequence **) calloc(M, sizeof(BitSequence *))) == NULL ) {
-		printf("ERROR IN FUNCTION create_matrix:  Insufficient memory available.\n");
-		
 		return NULL;
 	}
 	else {
 		for ( i=0; i<M; i++ ) {
 			if ( (matrix[i] = calloc(Q, sizeof(BitSequence))) == NULL ) {
-				printf("ERROR IN FUNCTION create_matrix: Insufficient memory for %dx%d matrix.\n", M, M);
-
 				return NULL;
 			}
 		}
@@ -144,7 +140,7 @@ create_matrix(int M, int Q)
 }
 
 void
-def_matrix(int M, int Q, BitSequence **m,int k)
+def_matrix(int M, int Q, BitSequence **m,int k, BitSequence const *epsilon)
 {
 	int		i,j;
 	

@@ -2,15 +2,15 @@
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#include "../include/externs.h"
+#include "../include/defs.h"
 #include "../include/cephes.h"  
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
                      R A N D O M  E X C U R S I O N S  T E S T
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-void
-RandomExcursions(int n)
+double
+RandomExcursions(int n, BitSequence const *epsilon)
 {
 	int		b, i, j, k, J, x;
 	int		cycleStart, cycleStop, *cycle = NULL, *S_k = NULL;
@@ -25,12 +25,11 @@ RandomExcursions(int n)
 	
 	if ( ((S_k = (int *)calloc(n, sizeof(int))) == NULL) ||
 		 ((cycle = (int *)calloc(MAX(1000, n/100), sizeof(int))) == NULL) ) {
-		printf("Random Excursions Test:  Insufficent Work Space Allocated.\n");
 		if ( S_k != NULL )
 			free(S_k);
 		if ( cycle != NULL )
 			free(cycle);
-		return;
+		return -1;
 	}
 	
 	J = 0; 					/* DETERMINE CYCLES */
@@ -40,10 +39,9 @@ RandomExcursions(int n)
 		if ( S_k[i] == 0 ) {
 			J++;
 			if ( J > MAX(1000, n/100) ) {
-				printf("ERROR IN FUNCTION randomExcursions:  EXCEEDING THE MAX NUMBER OF CYCLES EXPECTED\n.");
 				free(S_k);
 				free(cycle);
-				return;
+				return -2;
 			}
 			cycle[J] = i;
 		}
@@ -52,26 +50,13 @@ RandomExcursions(int n)
 		J++;
 	cycle[J] = n;
 
-	fprintf(stats[TEST_RND_EXCURSION], "\t\t\t  RANDOM EXCURSIONS TEST\n");
-	fprintf(stats[TEST_RND_EXCURSION], "\t\t--------------------------------------------\n");
-	fprintf(stats[TEST_RND_EXCURSION], "\t\tCOMPUTATIONAL INFORMATION:\n");
-	fprintf(stats[TEST_RND_EXCURSION], "\t\t--------------------------------------------\n");
-	fprintf(stats[TEST_RND_EXCURSION], "\t\t(a) Number Of Cycles (J) = %04d\n", J);
-	fprintf(stats[TEST_RND_EXCURSION], "\t\t(b) Sequence Length (n)  = %d\n", n);
-
 	constraint = MAX(0.005*pow(n, 0.5), 500);
 	if (J < constraint) {
-		fprintf(stats[TEST_RND_EXCURSION], "\t\t---------------------------------------------\n");
-		fprintf(stats[TEST_RND_EXCURSION], "\t\tWARNING:  TEST NOT APPLICABLE.  THERE ARE AN\n");
-		fprintf(stats[TEST_RND_EXCURSION], "\t\t\t  INSUFFICIENT NUMBER OF CYCLES.\n");
-		fprintf(stats[TEST_RND_EXCURSION], "\t\t---------------------------------------------\n");
-		for(i = 0; i < 8; i++)
-			fprintf(results[TEST_RND_EXCURSION], "%f\n", 0.0);
+        free(S_k);
+        free(cycle);
+        return -3;
 	}
 	else {
-		fprintf(stats[TEST_RND_EXCURSION], "\t\t(c) Rejection Constraint = %f\n", constraint);
-		fprintf(stats[TEST_RND_EXCURSION], "\t\t-------------------------------------------\n");
-
 		cycleStart = 0;
 		cycleStop  = cycle[1];
 		for ( k=0; k<6; k++ )
@@ -100,23 +85,18 @@ RandomExcursions(int n)
 					nu[5][i]++;
 			}
 		}
-		
+
+		p_value = 1;
+
 		for ( i=0; i<8; i++ ) {
 			x = stateX[i];
 			sum = 0.;
 			for ( k=0; k<6; k++ )
 				sum += pow(nu[k][i] - J*pi[(int)fabs(x)][k], 2) / (J*pi[(int)fabs(x)][k]);
-			p_value = cephes_igamc(2.5, sum/2.0);
-			
-			if ( isNegative(p_value) || isGreaterThanOne(p_value) )
-				fprintf(stats[TEST_RND_EXCURSION], "WARNING:  P_VALUE IS OUT OF RANGE.\n");
-
-			fprintf(stats[TEST_RND_EXCURSION], "%s\t\tx = %2d chi^2 = %9.6f p_value = %f\n",
-					p_value < ALPHA ? "FAILURE" : "SUCCESS", x, sum, p_value);
-			fprintf(results[TEST_RND_EXCURSION], "%f\n", p_value); fflush(results[TEST_RND_EXCURSION]);
+			p_value = fmin(p_value, cephes_igamc(2.5, sum/2.0));
 		}
-	} 
-	fprintf(stats[TEST_RND_EXCURSION], "\n"); fflush(stats[TEST_RND_EXCURSION]);
-	free(S_k);
-	free(cycle);
+        free(S_k);
+        free(cycle);
+        return p_value;
+	}
 }

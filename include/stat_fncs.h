@@ -3,18 +3,20 @@
      S T A T I S T I C A L  T E S T  F U N C T I O N  P R O T O T Y P E S 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-void	Frequency(int n);
-void	BlockFrequency(int M, int n);
-void	CumulativeSums(int n);
-void	Runs(int n);
-void	LongestRunOfOnes(int n);
-void	Rank(int n);
-void	DiscreteFourierTransform(int n);
-void	NonOverlappingTemplateMatchings(int m, int n);
-void	OverlappingTemplateMatchings(int m, int n);
-void	Universal(int n);
-void	ApproximateEntropy(int m, int n);
-void	RandomExcursions(int n);
-void	RandomExcursionsVariant(int n);
-void	LinearComplexity(int M, int n);
-void	Serial(int m, int n);
+#include "defs.h"
+
+double	Frequency(int n, BitSequence const *);
+double	BlockFrequency(int M, int n, BitSequence const *);
+double	CumulativeSums(int n, BitSequence const *);
+double	Runs(int n, BitSequence const *);
+double	LongestRunOfOnes(int n, BitSequence const *);
+double	Rank(int n, BitSequence const *);
+double	DiscreteFourierTransform(int n, BitSequence const *);
+double	NonOverlappingTemplateMatchings(int m, int n, BitSequence const *);
+double	OverlappingTemplateMatchings(int m, int n, BitSequence const *);
+double	Universal(int n, BitSequence const *);
+double 	ApproximateEntropy(int m, int n, BitSequence const *);
+double	RandomExcursions(int n, BitSequence const *);
+double	RandomExcursionsVariant(int n, BitSequence const *);
+double	LinearComplexity(int M, int n, BitSequence const *);
+double	Serial(int m, int n, BitSequence const *);
